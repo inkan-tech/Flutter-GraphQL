@@ -1,5 +1,5 @@
 name: back4appgraphqldemo
-description: A new Flutter application.
+description: Demo Back4app GraphQL with caching
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -27,10 +27,12 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.3
-  graphql_flutter: ^3.1.0
-  http: ^0.12.0+2
+
   connectivity: ^0.4.2
+  cupertino_icons: ^1.0.0-dev.4
+  graphql_flutter: ^5.0.0
+  http: ^0.13.4
+
 
 dev_dependencies:
   flutter_test:

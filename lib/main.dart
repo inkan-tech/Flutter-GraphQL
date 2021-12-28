@@ -1,28 +1,29 @@
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'constants.dart';
-import 'dart:ui';
-import 'dart:developer';
 
-void main() {
+void main() async {
+  // We're using HiveStore for persistence,
+  // so we need to initialize Hive.
+  await initHiveForFlutter();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final HttpLink httpLink = HttpLink(
-      uri: kParseApiUrl,
-      headers: {
-        'X-Parse-Application-Id': kParseApplicationId,
-        'X-Parse-Client-Key': kParseClientKey,
-        'X-Parse-REST-API-Key': kParseRestApiKey
-      }, //getheaders()
-    );
+    final HttpLink httpLink =
+        HttpLink(kParseApiUrl, 
+        defaultHeaders: {
+      'X-Parse-Application-Id': kParseApplicationId,
+      'X-Parse-Client-Key': kParseClientKey
+    });
 
+      // 'X-Parse-REST-API-Key': kParseRestApiKey
     ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
-        cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),
+        cache: GraphQLCache(store: HiveStore()),
         link: httpLink,
       ),
     );
@@ -47,17 +48,17 @@ class _MyHomePageState extends State<MyHomePage> {
   String objectId;
 
   String query = '''
-    query {
-      programmingLanguages {
-        edges {
-          node {
-            id
-            name
-            stronglyTyped
-          }
+  query FindHero {
+    heroes{
+      count,
+      edges{
+        node{
+          name
+          height
         }
       }
     }
+  }
   ''';
 
   @override
@@ -71,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Query(
           options: QueryOptions(
-            documentNode: gql(query),
+            document: gql(query),
           ),
           builder: (
             QueryResult result, {
@@ -89,15 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
               return ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
-                    title: Text(result.data["programmingLanguages"]["edges"]
+                    title: Text(result.data["heroes"]["edges"]
                         [index]["node"]['name']),
-                    trailing: Text(result.data["programmingLanguages"]["edges"]
-                            [index]["node"]['stronglyTyped']
-                        ? "Strongly Typed"
-                        : "Weekly Typed"),
+                    subtitle: Text("height : "+result.data["heroes"]["edges"]
+                        [index]["node"]['height'].toString())
+                        ,
                   );
                 },
-                itemCount: result.data["programmingLanguages"]["edges"].length,
+                itemCount: result.data["heroes"]["edges"].length,
               );
             }
           },
