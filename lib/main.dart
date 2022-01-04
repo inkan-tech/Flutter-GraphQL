@@ -68,11 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
   ///THIS IS A SAMPLE FOR MAKING MUTABLE REQUEST
 
   static String loginQuery = '''
-    mutation LogIn{
-      logIn(input: {
-        username: "test",
-        password: "testtest"
-      }){
+    mutation LogIn(\$input: {username: \$username: String!, password: \$password: String!}) {
+      logIn(input: \$input){
         viewer{
           sessionToken
           user { 
@@ -131,6 +128,9 @@ class _MyHomePageState extends State<MyHomePage> {
           floatingActionButton: Mutation(
               options: MutationOptions(
                   document: gql(loginQuery),
+                  variables: {
+                    "input": {"username": "test", "password": "testtest"}
+                  },
                   update: (GraphQLDataProxy cache, QueryResult result) {
                     return cache;
                   },
@@ -145,8 +145,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 QueryResult result,
               ) {
                 return FloatingActionButton(
-                  onPressed: () =>
-                      runMutation({"username": "test", "password": "testtest"}),
+                  onPressed: () => runMutation(<String, dynamic>{
+                    "input": {"username": "test", "password": "testtest"}
+                  }),
                   tooltip: 'Login',
                   child: const Icon(Icons.login_sharp),
                 );
